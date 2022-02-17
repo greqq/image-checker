@@ -1,5 +1,6 @@
 import ResponseError from './ResponseError';
 import ResponseOutput from './ResponseOutput';
+import { usePromiseTracker } from 'react-promise-tracker';
 
 function InputFormComponent({
   imageURL,
@@ -10,6 +11,8 @@ function InputFormComponent({
   imageUpload,
   errorData,
 }) {
+  const { promiseInProgress } = usePromiseTracker();
+
   return (
     <div>
       <div>

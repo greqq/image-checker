@@ -1,6 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
 import axios from 'axios';
+import { trackPromise } from 'react-promise-tracker';
 import InputFormComponent from '../components/InputForm';
 
 function InputForm() {
@@ -113,25 +114,27 @@ function InputForm() {
     event.preventDefault();
     setResponseData('');
 
-    axios
-      .get('https://api.sightengine.com/1.0/check.json', {
-        params: {
-          url: imageURL,
-          models: 'nudity,wad,offensive,face-attributes,gore',
-          api_user: process.env.REACT_APP_API_USER,
-          api_secret: process.env.REACT_APP_API_SECRET,
-        },
-      })
-      .then(function (response) {
-        // on success: handle response
-        processResponseData(response.data);
-      })
-      .catch(function (error) {
-        // handle error
-        if (error.response) console.log(error.response.data);
-        else console.log(error.message);
-        processError(error, true);
-      });
+    trackPromise(
+      axios
+        .get('https://api.sightengine.com/1.0/check.json', {
+          params: {
+            url: imageURL,
+            models: 'nudity,wad,offensive,face-attributes,gore',
+            api_user: process.env.REACT_APP_API_USER,
+            api_secret: process.env.REACT_APP_API_SECRET,
+          },
+        })
+        .then(function (response) {
+          // on success: handle response
+          processResponseData(response.data);
+        })
+        .catch(function (error) {
+          // handle error
+          if (error.response) console.log(error.response.data);
+          else console.log(error.message);
+          processError(error, true);
+        })
+    );
   };
 
   const handleFileRead = (e) => {
@@ -150,20 +153,23 @@ function InputForm() {
       data.append('models', 'nudity,wad,offensive,face-attributes,gore');
       data.append('api_user', process.env.REACT_APP_API_USER);
       data.append('api_secret', process.env.REACT_APP_API_SECRET);
-      axios({
-        method: 'post',
-        url: 'https://api.sightengine.com/1.0/check.json',
-        data: data,
-        headers: { 'content-type': 'multipart/form-data' },
-      })
-        .then(function (response) {
-          // on success: handle response
-          processResponseData(response.data);
+
+      trackPromise(
+        axios({
+          method: 'post',
+          url: 'https://api.sightengine.com/1.0/check.json',
+          data: data,
+          headers: { 'content-type': 'multipart/form-data' },
         })
-        .catch(function (error) {
-          // handle error
-          setErrorData(error, false);
-        });
+          .then(function (response) {
+            // on success: handle response
+            processResponseData(response.data);
+          })
+          .catch(function (error) {
+            // handle error
+            setErrorData(error, false);
+          })
+      );
     }
   };
 
