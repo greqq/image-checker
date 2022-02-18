@@ -139,7 +139,7 @@ function InputForm() {
 
   const handleFileRead = (e) => {
     setResponseData('');
-
+    console.log(e.target.files[0]);
     if (e.target.files[0]) {
       const reader = new FileReader();
       reader.readAsDataURL(e.target.files[0]);
