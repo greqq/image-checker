@@ -12,6 +12,7 @@ function InputForm() {
 
   const processResponseData = (data) => {
     let result = [];
+    let noHarmInPhoto = true;
     setResponseData('');
     setErrorData('');
 
@@ -19,11 +20,13 @@ function InputForm() {
       // Drugs, alcohol, wepons. Treshold is set to 50%
       if (data.drugs >= 0.5) {
         //setTest(...testData,{drugs: true})
+        noHarmInPhoto = false;
         result.push(
           'Šansa je ' + data.drugs * 100 + '% da je na slici prikazana droga!'
         );
       }
       if (data.alcohol >= 0.1) {
+        noHarmInPhoto = false;
         result.push(
           'Šansa je ' +
             data.alcohol * 100 +
@@ -31,6 +34,7 @@ function InputForm() {
         );
       }
       if (data.weapon >= 0.5) {
+        noHarmInPhoto = false;
         result.push(
           'Šansa je ' +
             data.weapon * 100 +
@@ -40,11 +44,13 @@ function InputForm() {
 
       // nudity
       if (data.nudity.raw >= Math.max(data.nudity.partial, data.nudity.safe)) {
+        noHarmInPhoto = false;
         // raw nudity
         result.push('Slika sadrži golotinju!');
       } else if (
         data.nudity.partial >= Math.max(data.nudity.raw, data.nudity.safe)
       ) {
+        noHarmInPhoto = false;
         // partial nudity
         result.push('Slika sadrži djelomičnu golotinju!');
       } else {
@@ -54,6 +60,7 @@ function InputForm() {
 
       //offensive content
       if (data.offensive.prob >= 0.5) {
+        noHarmInPhoto = false;
         result.push(
           'Šansa je ' +
             data.offensive.prob * 100 +
@@ -63,6 +70,7 @@ function InputForm() {
 
       // Graphic Violence & Gore Detection
       if (data.gore.prob >= 0.5) {
+        noHarmInPhoto = false;
         result.push(
           'Šansa je ' +
             data.gore.prob * 100 +
@@ -78,8 +86,12 @@ function InputForm() {
               face.attributes.minor * 100 +
               '% da je na slici prikazana osoba mlađa od 18 godina!'
           );
+          noHarmInPhoto = false;
           break;
         }
+      }
+      if (noHarmInPhoto) {
+        result.push('Slika ne sadrži problematični sadržaj');
       }
       setResponseData(result);
     }
@@ -113,6 +125,7 @@ function InputForm() {
   const handleSubmit = (event) => {
     event.preventDefault();
     setResponseData('');
+    setImageUpload(null);
 
     trackPromise(
       axios
@@ -126,6 +139,7 @@ function InputForm() {
         })
         .then(function (response) {
           // on success: handle response
+
           processResponseData(response.data);
         })
         .catch(function (error) {
